@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.salaries.mapper.RoleInfoMapper">
+
+    <select id="getRoleDtoByUserId" parameterType="int" resultType="com.salaries.dto.RoleDto">
+        select isnull(tb1.ROLEID) isnull,ri.*
+        from (select r.* from roleinfo r,user_role ur,userinfo u where r.ROLEID=ur.ROLEID and ur.USERID=u.USERID and u.USERID=#{userId}) tb1
+        right join roleinfo ri on tb1.ROLEID=ri.ROLEID
+    </select>
+
+
+
+    <!--条件模糊查询-->
+    <select id="selectRoles" resultType="com.salaries.dto.RoleDto" parameterType="com.salaries.vo.RoleInfoVo">
+        select * from roleinfo
+        <trim prefixOverrides="and">
+            <where>
+                <if test="roleName != null and roleName != ''">
+                    and ROLENAME like "%"#{roleName}"%"
+                </if>
+                <if test="shortName != null and shortName != ''">
+                    and SHORTNAME like "%"#{shortName}"%"
+                </if>
+            </where>
+        </trim>
+    </select>
+
+
+    <!--查询所有角色-->
+    <select id="listAllRoles" resultType="com.salaries.pojo.RoleInfo">
+        SELECT * FROM roleinfo
+    </select>
+</mapper>

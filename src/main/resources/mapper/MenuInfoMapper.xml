@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.salaries.mapper.MenuInfoMapper">
+
+    <resultMap id="MenuInfoMap" type="com.salaries.dto.MenuInfoDto">
+        <id column="MENUID" property="id"></id>
+        <result column="PARENTID" property="pid"></result>
+        <result column="MENUNAME" property="name"></result>
+        <result column="MENU_URL" property="url"></result>
+        <result column="MENUICON" property="icon"></result>
+        <collection property="children" ofType="com.salaries.dto.MenuInfoDto">
+            <id column="c_id" property="id"></id>
+            <result column="c_pid" property="pid"></result>
+            <result column="c_name" property="name"></result>
+            <result column="c_url" property="url"></result>
+            <result column="c_icon" property="icon"></result>
+            <result column="checked" property="checked"></result>
+        </collection>
+    </resultMap>
+
+    <select id="listMenu" parameterType="int" resultMap="MenuInfoMap">
+        SELECT tb1.*,ISNULL(tb2.c_name) checked
+
+        FROM
+
+        (SELECT m1.*,m2.MENUID c_id,m2.MENUNAME c_name,m2.MENU_URL c_url,m2.MENUICON c_icon,m2.PARENTID c_pid
+        FROM menuinfo m1,menuinfo m2 WHERE m1.MENUID = m2.PARENTID) tb1
+
+        LEFT JOIN
+
+        (SELECT m1.*,m2.MENUID c_id,m2.MENUNAME c_name,m2.MENU_URL c_url,m2.MENUICON c_icon,m2.PARENTID c_pid FROM menuinfo m1,menuinfo m2,roleinfo r,
+        rolemenu rm WHERE m1.MENUID = m2.PARENTID AND rm.`MENUID`=m2.`MENUID`
+        AND rm.`ROLEID`=r.`ROLEID` AND r.`ROLEID`=#{roleId}) tb2
+
+        ON tb1.c_name=tb2.c_name
+
+
+
+--          SELECT tb1.*,ISNULL(rm.MENUID) checked FROM (SELECT m1.*,m2.MENUID c_id,m2.MENUNAME c_name,
+--          m2.MENU_URL c_url,m2.MENUICON c_icon,m2.PARENTID c_pid
+--           FROM menuinfo m1,menuinfo m2 WHERE m1.MENUID = m2.PARENTID) tb1 LEFT JOIN rolemenu rm ON tb1.c_id=rm.MENUID
+    </select>
+
+    <select id="getMenuInfoByRoleId" resultType="com.salaries.dto.MenuInfoDto" parameterType="int" resultMap="MenuInfoMap">
+        SELECT m1.*,m2.MENUID c_id,m2.MENUNAME c_name,m2.MENU_URL c_url,
+        m2.MENUICON c_icon,m2.PARENTID c_pid FROM menuinfo m1,menuinfo m2,roleinfo r,
+        rolemenu rm WHERE m1.MENUID = m2.PARENTID AND rm.`MENUID`=m2.`MENUID`
+        AND rm.`ROLEID`=r.`ROLEID` AND r.`ROLEID`=#{roleId}
+    </select>
+
+</mapper>

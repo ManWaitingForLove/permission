@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.salaries.mapper.UserInfoMapper">
+
+
+    <!--用户登录-->
+    <select id="userLogin" parameterType="com.salaries.vo.UserInfoVo" resultType="com.salaries.pojo.UserInfo">
+        select * from userinfo where USERNAME=#{userName} and PASSWORD=#{password}
+    </select>
+
+    <!--列出所有用户-->
+    <select id="listAllUserInfos" resultType="com.salaries.pojo.UserInfo">
+        select * from userinfo
+    </select>
+
+    <!--用户注册-->
+    <!--如果添加的字段值有与表中已有字段值重复的话影响行数为0，添加不进去-->
+    <insert id="register" parameterType="com.salaries.pojo.UserInfo">
+        INSERT INTO userinfo(USERNAME,PASSWORD,REGEMAIL,MOBILE)
+        SELECT #{userName},#{password},#{regEmail},#{mobile} FROM DUAL
+        WHERE NOT EXISTS(SELECT * FROM userinfo WHERE userName=#{userName} OR regEmail=#{regEmail} OR mobile=#{mobile})
+    </insert>
+
+
+    <!--修改用户-->
+    <update id="updateUserInfoById" parameterType="com.salaries.pojo.UserInfo">
+        update userinfo
+        <set>
+            <if test="userName != null and userName != ''">
+                USERNAME = #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                PASSWORD = #{password},
+            </if>
+            <if test="regEmail != null and regEmail != ''">
+                REGEMAIL = #{regEmail},
+            </if>
+            <if test="mobile != null and mobile != ''">
+                MOBILE = #{mobile}
+            </if>
+        </set>
+        where USERID = #{userId}
+    </update>
+
+
+    <!--删除用户-->
+    <delete id="deleteUserInfoById" parameterType="int">
+        delete from userinfo where USERID=#{userId}
+    </delete>
+
+
+    <!--根据userId查找用户信息-->
+    <select id="findUserInfoById" parameterType="int" resultType="com.salaries.pojo.UserInfo">
+        select * from userinfo where USERID=#{userId}
+    </select>
+
+
+
+    <!--用户总数量-->
+    <select id="getUserInfoCount" resultType="int">
+        select count(*) from userinfo
+    </select>
+
+
+    <!--通过userId查询授权-->
+    <select id="listRoleDtoByUserId" parameterType="int" resultType="com.salaries.dto.RoleDto">
+        select ISNULL(tbl.roleId) ISNULL,ri.*
+        from (select r.* from userinfo u,user_role ur,roleinfo r where u.USERID=ur.USERID and ur.ROLEID=r.ROLEID and u.USERID=#{userId})
+        tbl right join roleinfo ri on tbl.ROLEID=ri.ROLEID
+    </select>
+</mapper>

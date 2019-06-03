@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.salaries.mapper.User_RoleMapper">
+
+    <!--根据userId添加角色-->
+    <insert id="insertRoleInfoByUserId" parameterType="com.salaries.vo.User_RoleVo">
+        INSERT INTO user_role(USERID,ROLEID) VALUES(#{userId},#{roleId})
+    </insert>
+
+    <!--根据userId和roleId删除角色-->
+    <delete id="deleteRoleInfoByUserId" parameterType="int">
+        DELETE FROM user_role WHERE USERID=#{userId}
+    </delete>
+
+</mapper>
